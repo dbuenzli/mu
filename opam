@@ -1,0 +1,26 @@
+opam-version: "2.0"
+name: "mu"
+synopsis: """Declarative music for OCaml"""
+maintainer: ["Daniel Bünzli <daniel.buenzl i@erratique.ch>"]
+authors: ["The mu programmers"]
+homepage: "https://erratique.ch/software/mu"
+doc: "https://erratique.ch/software/mu/doc"
+dev-repo: "git+https://erratique.ch/repos/mu.git"
+bug-reports: "https://github.com/dbuenzli/mu/issues"
+license: ["ISC"]
+tags: ["codec" "midi" "music" "org:erratique"]
+depends: ["ocaml" {>= "4.12.0"}
+          "b0" {>= "0.0.3"}
+          "ocamlfind" {build}
+          "ocamlbuild" {build}]
+build: [["ocaml" "pkg/pkg.ml" "build" "--dev-pkg" "%{dev}%"]]
+description: """
+Mu is an OCaml module for declaring music. It provides a simple type
+for representing music and combinators to define and compose it.
+
+Music values are interpreted by renderers. Mu has built-in support for
+rendering music values to MIDI files.
+
+Mu is distributed under the ISC license. It has no dependencies.
+
+Homepage: <https://erratique.ch/software/mu>"""

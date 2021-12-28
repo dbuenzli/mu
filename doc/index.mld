@@ -1,0 +1,41 @@
+{0 Mu {%html: <span class="version">%%VERSION%%</span>%}}
+
+Mu declares music. It provides a simple type for representing music
+and combinators to define and compose it.
+
+Music values are interpreted by renderers. Mu has built-in support for
+rendering music values to MIDI files.
+
+{1:mu Library [mu]}
+
+{!modules:
+Mu
+Mu_midi}
+
+{1:mu_player Library [mu.player]}
+
+{!modules:
+Mu_player}
+
+{1:todo TODO}
+
+{ul
+{- Add infinite music support ? Basically add a [`Lazy] case to music
+   values and switch to {!Stdlib.Seq} instead of lists in a few
+   places. However reading HSoM 8.3.1, it seem finiteness is a good
+   property in the end, e.g. for timing correctness. But it's useful,
+   for e.g. repeating a pattern as much as needed. We should likely
+   add a [M.loop ~dur m] combinator. Also infinite parallel is not
+   that useful, maybe simply add a {!Stdlib.Seq.t} case.
+   }
+{- More {{!Mu.Music.Phrase}phrasing} control support.}
+{- Player interpretation support ? It's in HSoM but not in the library.
+   It looks like a nice addition for certain use cases. But formally can
+   also be defined externally.}
+{- Some of the variants should be made extensible which one exactly ?
+   {!Mu.Music.Ctrl.t} is a good candidate, this would allow clients to
+   define custom music annotations. What about {!Mu.Instrument.t} and
+   {!Mu.Percussion.t} ?}
+{- Can't we be smarter for time signatures in MIDI rendering for import
+   in other tools ?}
+{- Graphic renderers ! Vg, tty, what not.}}

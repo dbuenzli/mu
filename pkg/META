@@ -1,0 +1,18 @@
+description = "Declarative music for OCaml"
+version = "%%VERSION_NUM%%"
+archive(byte) = "mu.cma"
+archive(native) = "mu.cmxa"
+plugin(byte) = "mu.cma"
+plugin(native) = "mu.cmxs"
+
+package "player" (
+  description = "Mu player"
+  version = "%%VERSION_NUM%%"
+  directory = "player"
+  requires = "mu b0"
+  archive(byte) = "mu_player.cma"
+  archive(native) = "mu_player.cmxa"
+  plugin(byte) = "mu_player.cma"
+  plugin(native) = "mu_player.cmxs"
+  exists_if = "mu_player.cma"
+)
