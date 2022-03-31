@@ -67,6 +67,20 @@ let test_predicates () =
   assert_int Q.(sign infinity) 1;
   ()
 
+let test_to_int () =
+  log "Test Q.{[checked_]to_int_{away_from,towards}_zero";
+  assert_int Q.(to_int_towards_zero (1 #/ 4)) 0;
+  assert_int Q.(to_int_away_from_zero (1 #/ 4)) 1;
+  assert_int Q.(to_int_towards_zero (-1 #/ 4)) 0;
+  assert_int Q.(to_int_away_from_zero (-1 #/ 4)) (-1);
+  assert_int Q.(to_int_towards_zero (3 #/ 2)) 1;
+  assert_int Q.(to_int_away_from_zero (3 #/ 2)) 2;
+  assert_int Q.(to_int_towards_zero (-3 #/ 2)) (-1);
+  assert_int Q.(to_int_away_from_zero (-3 #/ 2)) (-2);
+  assert (Q.(checked_to_int_towards_zero (2 #/ 0)) = None);
+  assert (Q.(checked_to_int_away_from_zero (2 #/ 0)) = None);
+  ()
+
 let test_to_float () =
   log "Test Q.to_float";
   assert_float Q.(to_float one) 1.0;
@@ -131,6 +145,7 @@ let tests () =
   test_uniqueness ();
   test_predicates ();
   test_compare ();
+  test_to_int ();
   test_to_float ();
   test_add_sub ();
   test_mul_div ();

@@ -167,12 +167,24 @@ module Q : sig
   val of_int : int -> t
   (** [of_int n] is [n // 1]. *)
 
-  val to_int : t -> int
-  (** [to_int r] is [num r / den r]. Raises [Division_by_zero] if [den r]
-      is [0]; that is on {!nan}, {!neg_infinity}, {!infinity}. *)
+  val to_int_towards_zero : t -> int
+  (** [to_int_towards_zero r] is [num r / den r]. Divides [r] and
+      moves towards zero to the nearest int. Raises [Division_by_zero]
+      if [den r] is [0]; that is on {!nan}, {!neg_infinity},
+      {!infinity}. *)
 
-  val safe_to_int : t -> int option
-  (** [safe_to_int] is like {!to_int} but is [None] if [den r] is [0]. *)
+  val to_int_away_from_zero : t -> int
+  (** [to_int_away_from_zero r] divides [r] moves away from zero to
+      the nearest int. Raises [Division_by_zero] if [den r] is [0];
+      that is on {!nan}, {!neg_infinity}, {!infinity}. *)
+
+  val checked_to_int_towards_zero : t -> int option
+  (** [checked_to_int_towards_zero] is like {!to_int_towards_zero} but
+      is [None] if [den r] is [0]. *)
+
+  val checked_to_int_away_from_zero : t -> int option
+  (** [checked_to_int_towards_zero] is like {!to_int_away_from_zero} but is
+      [None] if [den r] is [0]. *)
 
   val to_float : t -> float
   (** [to_float r] is [(float (num r) /. (float (den r))]. Special values

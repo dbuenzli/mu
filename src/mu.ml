@@ -118,8 +118,18 @@ module Q = struct
   (* Converting *)
 
   let of_int n = n #/ 1
-  let to_int r = r.num / r.den
-  let safe_to_int r = if r.den = 0 then None else Some (to_int r)
+  let to_int_towards_zero r = r.num / r.den
+  let to_int_away_from_zero r =
+    if r.num >= 0
+    then (r.num + r.den - 1) / r.den
+    else -((-r.num + r.den - 1) / r.den)
+
+  let checked_to_int_towards_zero r =
+    if r.den = 0 then None else Some (to_int_towards_zero r)
+
+  let checked_to_int_away_from_zero r =
+    if r.den = 0 then None else Some (to_int_away_from_zero r)
+
   let to_float r = float r.num /. float r.den
 
   (* Formatting *)

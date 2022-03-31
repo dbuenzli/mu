@@ -196,7 +196,7 @@ module File = struct
   let bpm_120 = 500_000 (* 500_000 useconds/quarter note *)
   let ticks_per_quarter_note = 96
   let ticks_per_s = Q.int (2 * ticks_per_quarter_note) (* because 120 bpm *)
-  let s_to_ticks secs = Q.(to_int (ticks_per_s * secs))
+  let s_to_ticks secs = Q.(to_int_towards_zero (ticks_per_s * secs))
 
   let rel_time evs = (* relativize the time of [evs] and add track end msg *)
     let rec loop at = function
