@@ -17,6 +17,11 @@ Mu_midi}
 {!modules:
 Mu_player}
 
+{1:mu_tportaudio Library [mu.tportaudio]}
+
+{!modules:
+Tportaudio}
+
 {1:todo TODO}
 
 {ul

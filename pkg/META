@@ -16,3 +16,14 @@ package "player" (
   plugin(native) = "mu_player.cmxs"
   exists_if = "mu_player.cma"
 )
+
+package "tportaudio" (
+  description = "Thin bindings to portaudio"
+  version = "%%VERSION_NUM%%"
+  directory = "tportaudio"
+  archive(byte) = "tportaudio.cma"
+  archive(native) = "tportaudio.cmxa"
+  plugin(byte) = "tportaudio.cma"
+  plugin(native) = "tportaudio.cmxs"
+  exists_if = "tportaudio.cma"
+)

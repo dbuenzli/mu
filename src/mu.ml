@@ -393,6 +393,20 @@ module Music = struct
     type t =
     [ `Major | `Minor | `Ionian | `Dorian | `Phrygian | `Lydian | `Myxolydian
     | `Aeolian | `Locrian | `Custom of string ]
+
+    let major_intervals = [2; 2; 1; 2; 2; 2]
+    let minor_intervals = [2; 1; 2; 2; 1; 2]
+    let mode_to_intervals = function
+    | `Major -> major_intervals
+    | `Minor -> minor_intervals
+    | `Ionian -> major_intervals
+    | `Dorian -> [2; 1; 2; 2; 2; 1]
+    | `Phrygian -> [1; 2; 2; 2; 1; 2]
+    | `Lydian -> [2; 2; 2; 1; 2; 2]
+    | `Myxolydian -> [2; 2; 1; 2; 2; 1]
+    | `Aeolian -> minor_intervals
+    | `Locrian -> [1; 2; 2; 1; 2; 2]
+    | `Custom _ -> []
   end
 
   module Phrase = struct
