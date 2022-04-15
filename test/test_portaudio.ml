@@ -15,14 +15,14 @@ let log_if_error ~use = function
 
 let test_version () = log "Testing portaudio %s" (Tportaudio.version ()); ()
 let test_setup () =
-  log "Testing inityialize and terminate.";
+  log "Testing initialize and terminate.";
   assert (Tportaudio.initialize () = Ok ());
   assert (Tportaudio.terminate () = Ok ());
   ()
 
 let test_host_apis () =
-  let report a () =
-    Tportaudio.Host_api_info.(log "  Found API: %d %s" (type' a) (name a))
+  let report i a () =
+    Tportaudio.Host_api_info.(log "  Found API %d: %d %s" i (type' a) (name a))
   in
   log "Testing host API functions";
   log_if_error ~use:() @@ Result.join @@ Tportaudio.bracket @@ fun () ->
@@ -33,14 +33,14 @@ let test_host_apis () =
 
 let test_devices () =
   let pp_dd = pp_option Format.pp_print_int in
-  let report d () =
+  let report did d () =
     let open Tportaudio.Device_info in
-    log "  Found device:@[<v> %s@,\
+    log "  Found device %d:@[<v> %s@,\
          max i/o channels: %d/%d@,\
          default i/o low latency: %gs/%gs@,\
          default i/o high latency: %gs/%gs@,\
          default sample-rate: %gHz@]"
-      (name d) (max_input_channels d) (max_output_channels d)
+      did (name d) (max_input_channels d) (max_output_channels d)
       (default_low_input_latency d) (default_low_output_latency d)
       (default_high_input_latency d) (default_high_output_latency d)
       (default_sample_rate_hz d)

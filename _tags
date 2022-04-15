@@ -3,11 +3,21 @@ true : bin_annot, safe_string
 <_b0> : -traverse
 <src> : include
 <src/mu_player*> : package(b0.b00.std)
+
+<test/**> : package(b0.b00.std)
+
 <src/tportaudio_stubs.c> : use_portaudio-2.0
 <src/libtportaudio_stubs.*> : use_portaudio-2.0
 <src/tportaudio.{cma,cmxa}> : record_tportaudio_stubs
 <src/tportaudio.cmxs> : link_tportaudio_stubs_archive
 
-<test/**> : package(b0.b00.std)
 <test/test_portaudio*> : use_tportaudio
 <test/test_audio_io*> : use_tportaudio
+
+<src/tportmidi_stubs.c> : use_portmidi
+<src/libtportmidi_stubs.*> : use_portmidi
+<src/tportmidi.{cma,cmxa}> : record_tportmidi_stubs
+<src/tportmidi.cmxs> : link_tportmidi_stubs_archive
+
+<test/test_portmidi*> : use_tportmidi
+<test/test_midi_io*> : use_tportmidi

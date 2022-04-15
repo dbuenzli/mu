@@ -163,7 +163,7 @@ val get_host_api_info : host_api_index -> (Host_api_info.t, error) result
 (** [get_host_api_info ai] is the host API info for index [ai]. *)
 
 val fold_host_api_infos :
-  (Host_api_info.t -> 'a -> 'a) -> 'a -> ('a, error) result
+  (host_api_index -> Host_api_info.t -> 'a -> 'a) -> 'a -> ('a, error) result
 (** [fold_host_api_infos f acc] folds over the host APIs. *)
 
 (** {1:devices Devices} *)
@@ -171,7 +171,7 @@ val fold_host_api_infos :
 (** Device information. *)
 module Device_info : sig
   type t
-  (** The type for host API information.
+  (** The type for device information.
 
       Values of this type survive a {!terminate} but the refered
       host API index will no longer be valid. *)
@@ -226,7 +226,8 @@ val get_default_output_device : unit -> device_index option
 val get_device_info : device_index -> (Device_info.t, error) result
 (** [get_device_info di] is the device information fo index [di]. *)
 
-val fold_device_infos : (Device_info.t -> 'a -> 'a) -> 'a -> ('a, error) result
+val fold_device_infos :
+  (device_index -> Device_info.t -> 'a -> 'a) -> 'a -> ('a, error) result
 (** [fold_device_infos f acc] folds over devices. *)
 
 (** {1:sample_formats Sample formats} *)
@@ -443,24 +444,12 @@ val read_stream :
 (** [read_stream s fs ~count] {{:http://files.portaudio.com/docs/v19-doxydocs/portaudio_8h.html#a075a6efb503a728213bdae24347ed27d}
     reads} [frame_count] frames from [s] into [fs]. *)
 
-
 (** {1:example Example}
 
     This example passes the default audio input to the default audio
     output.
 
 {[
-(* Passes default audio input to default audio output.
-
-   Compile with:
-
-   ocamlfind ocamlopt \
-   -package mu.tportaudio -linkpkg -o test_audio_io test_audio_io.ml
-
-   ocamlfind ocamlc \
-   -package mu.tportaudio -linkpkg -o test_audio_io test_audio_io.ml *)
-
-
 let ( let* ) = Result.bind
 
 let log fmt = Format.kfprintf (Fun.const ()) Format.std_formatter (fmt ^^ "@.")
@@ -499,27 +488,24 @@ let io_stream sf layout ~sample_rate_hz ~frame_count ~i ~o =
   in
   Ok (iinfo, oinfo, channel_count, s)
 
-let run_io_pass stop s buf =
-  let frame_count = Tportaudio.Buffer.frame_count buf in
-  let* () = Tportaudio.start_stream s in
-  let rec loop stop = match !stop with
-  | true -> Tportaudio.stop_stream s
-  | false ->
-      log_if_error ~use:() (Tportaudio.write_stream s buf ~frame_count);
-      log_if_error ~use:() (Tportaudio.read_stream s buf ~frame_count);
-      loop stop
-  in
-  loop stop
-
-let io_pass stop ~i ~o =
+let forward stop ~i ~o =
   let sample_rate_hz = 44100. and frame_count = 256 in
   let sf = Tportaudio.Float32 and layout = `Interleaved in
   let* ii, oi, c, s = io_stream sf layout ~sample_rate_hz ~frame_count ~i ~o in
-  let finally () = ignore (Tportaudio.close_stream) in
-  Fun.protect ~finally @@ fun () ->
   let* () = log_stream_info ii oi s in
   let buf = Tportaudio.Buffer.create ~channel_count:c sf layout ~frame_count in
-  run_io_pass stop s buf
+  let finally () = ignore (Tportaudio.close_stream) in
+  Fun.protect ~finally @@ fun () ->
+  let* () = Tportaudio.start_stream s in
+  let rec loop stop =
+    if !stop then Tportaudio.stop_stream s else
+    begin
+      log_if_error ~use:() (Tportaudio.write_stream s buf ~frame_count);
+      log_if_error ~use:() (Tportaudio.read_stream s buf ~frame_count);
+      loop stop
+    end
+  in
+  loop stop
 
 let default_io_devices () =
   let none = Tportaudio.Error.device_unavailable in
@@ -538,12 +524,11 @@ let main () =
   log_if_error ~use:1 @@ Result.join @@ Tportaudio.bracket @@ fun () ->
   let stop = signal_stopper () in
   let* i, o = default_io_devices () in
-  Result.map (fun () -> 0) (io_pass stop ~i ~o)
+  Result.map (fun () -> 0) (forward stop ~i ~o)
 
 let () = if !Sys.interactive then () else exit (main ())
 ]}
 *)
-
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2022 The mu programmers

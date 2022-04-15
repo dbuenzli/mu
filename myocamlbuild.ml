@@ -59,5 +59,8 @@ let () =
       lib_with_clib
         ~lib:"tportaudio" ~clib:"portaudio-2.0" ~has_lib:"-DHAS_PORTAUDIO"
         ~src_dir:"src" ~stublib:"tportaudio_stubs";
+      lib_with_clib
+        ~lib:"tportmidi" ~clib:"portmidi" ~has_lib:"-DHAS_PORTMIDI"
+        ~src_dir:"src" ~stublib:"tportmidi_stubs";
   | _ -> ()
   end

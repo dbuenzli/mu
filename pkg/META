@@ -27,3 +27,14 @@ package "tportaudio" (
   plugin(native) = "tportaudio.cmxs"
   exists_if = "tportaudio.cma"
 )
+
+package "tportmidi" (
+  description = "Thin bindings to portmidi"
+  version = "%%VERSION_NUM%%"
+  directory = "tportmidi"
+  archive(byte) = "tportmidi.cma"
+  archive(native) = "tportmidi.cmxa"
+  plugin(byte) = "tportmidi.cma"
+  plugin(native) = "tportmidi.cmxs"
+  exists_if = "tportmidi.cma"
+)

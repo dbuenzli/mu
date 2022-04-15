@@ -17,10 +17,11 @@ Mu_midi}
 {!modules:
 Mu_player}
 
-{1:mu_tportaudio Library [mu.tportaudio]}
+{1:mu_tportaudio Libraries [mu.tportaudio] and [mu.tportmidi]}
 
 {!modules:
-Tportaudio}
+Tportaudio
+Tportmidi}
 
 {1:todo TODO}
 

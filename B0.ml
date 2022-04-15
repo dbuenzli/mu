@@ -8,6 +8,7 @@ let b0_b00_std = B0_ocaml.libname "b0.b00.std"
 let mu = B0_ocaml.libname "mu"
 let mu_player = B0_ocaml.libname "mu.player"
 let mu_tportaudio = B0_ocaml.libname "mu.tportaudio"
+let mu_tportmidi = B0_ocaml.libname "mu.tportmidi"
 
 (* Libraries *)
 
@@ -26,6 +27,14 @@ let mu_tportaudio_lib =
   in
   let requires = [] in
   B0_ocaml.lib mu_tportaudio ~doc:"portaudio binding library" ~srcs ~requires
+
+let mu_tportmidi_lib =
+  let stubs = `File (Fpath.v "src/tportmidi_stubs.c") in
+  let srcs = Fpath.[stubs; `File (v "src/tportmidi.mli");
+                    `File (v "src/tportmidi.ml") ]
+  in
+  let requires = [] in
+  B0_ocaml.lib mu_tportmidi ~doc:"portmidi binding library" ~srcs ~requires
 
 let mu_player_lib =
   let srcs = Fpath.[ `File (v "src/mu_player.mli");
@@ -55,6 +64,14 @@ let test_audio_io =
   let requires = [mu_tportaudio] in
   test_exe "test_audio_io.ml" ~doc:"Tportaudio IO pass through test" ~requires
 
+let test_portmidi =
+  let requires = [mu_tportmidi] in
+  test_exe "test_portmidi.ml" ~doc:"Tportmidi tests" ~requires
+
+let test_audio_io =
+  let requires = [mu_tportmidi] in
+  test_exe "test_midi_io.ml" ~doc:"Tportmidi IO test" ~requires
+
 let twinkle = test_exe "twinkle.ml" ~doc:"Twinkle song"
 let chick_corea = test_exe "chick_corea.ml" ~doc:"Chick Corea song"
 let more_music = test_exe "more_music.ml" ~doc:"More music"
@@ -82,14 +99,17 @@ let default =
     |> add description_tags ["codec"; "midi"; "music"; "org:erratique"; ]
     |> add B0_opam.Meta.build
       {|[["ocaml" "pkg/pkg.ml" "build" "--dev-pkg" "%{dev}%"
-          "--with-conf-portaudio" "%{conf-portaudio:installed}%"]]|}
+          "--with-conf-portaudio" "%{conf-portaudio:installed}%"
+          "--with-conf-portmidi" "%{conf-portmidi:installed}%"]]|}
     |> tag B0_opam.tag
     |> add B0_opam.Meta.depends
       [ "ocaml", {|>= "4.12.0"|};
         "b0", {|>= "0.0.3"|};
         "ocamlfind", {|build|};
         "ocamlbuild", {|build|};
-        "conf-portaudio", {|build|};]
+        "conf-portaudio", {|build|};
+        "conf-portmidi", {|build|};
+      ]
   in
   B0_pack.v "default" ~doc:"mu package" ~meta ~locked:true @@
   B0_unit.list ()

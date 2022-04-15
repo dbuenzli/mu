@@ -51,22 +51,25 @@ end
 type error = Error.t
 let error_string r = Result.map_error Error.message r
 
+let[@inline] ret r = if r < 0 then Error r else Ok ()
+let[@inline] ret_int r = if r < 0 then Error r else Ok r
+let[@inline] ret_bool r =
+  if r < 0 then Error r else if r = 0 then Ok false else Ok true
+
 (* Initialisation and termination  *)
 
 external _version : unit -> int * int * int * string * string =
   "ocaml_tpa_version"
 
+external _initialize : unit -> int = "ocaml_tpa_initialize"
+external _terminate : unit -> int = "ocaml_tpa_terminate"
+
 let version () =
   let maj, min, patch, _, _ = _version () in
   Printf.sprintf "%d.%d.%d" maj min patch
 
-external _initialize : unit -> int = "ocaml_tpa_initialize"
-
-let initialize () = match _initialize () with 0 -> Ok () | e -> Error e
-
-external _terminate : unit -> int = "ocaml_tpa_terminate"
-let terminate () = match _terminate () with 0 -> Ok () | e -> Error e
-
+let initialize () = ret (_initialize ())
+let terminate () = ret (_terminate ())
 let bracket f = match initialize () with
 | Error _ as e -> e
 | Ok () ->
@@ -138,12 +141,8 @@ external _host_api_device_index_to_device_index :
   host_api_index -> int -> int =
   "ocaml_tpa_host_api_device_index_to_device_index"
 
-let get_host_api_count () =
-  match _get_host_api_count () with c when c >= 0 -> Ok c | e -> Error e
-
-let get_default_host_api () =
-  match _get_default_host_api () with i when i >= 0 -> Ok i | e -> Error e
-
+let get_host_api_count () = ret_int (_get_host_api_count ())
+let get_default_host_api () = ret_int (_get_default_host_api ())
 let get_host_api_device_indexes idx device_count =
   let rec loop max i acc =
     if i > max then Ok (List.rev acc) else
@@ -168,7 +167,7 @@ let fold_host_api_infos f acc =
   let rec loop max i acc =
     if i > max then Ok acc else
     match get_host_api_info i with
-    | Ok h -> loop max (i + 1) (f h acc)
+    | Ok h -> loop max (i + 1) (f i h acc)
     | Error _ as e -> e
   in
   loop (count - 1) 0 acc
@@ -210,8 +209,7 @@ external _get_default_output_device : unit -> int =
 external get_device_info : device_index -> (Device_info.t, error) result =
   "ocaml_tpa_get_device_info"
 
-let get_device_count () =
-  match _get_device_count () with c when c >= 0 -> Ok c | e -> Error e
+let get_device_count () = ret_int (_get_device_count ())
 
 let get_default_input_device () =
   no_device_to_none (_get_default_input_device ())
@@ -224,7 +222,7 @@ let fold_device_infos f acc =
   let rec loop max i acc =
     if i > max then Ok acc else
     match get_device_info i with
-    | Ok d -> loop max (i + 1) (f d acc)
+    | Ok d -> loop max (i + 1) (f i d acc)
     | Error _ as e -> e
   in
   loop (count - 1) 0 acc
@@ -439,16 +437,12 @@ let open_default_stream
   Ok { ptr; closed = false }
 
 let[@inline] check s = if s.closed then invalid_arg "Stream is closed"
-let[@inline] ret r = if r < 0 then Error r else Ok ()
-let[@inline] ret_int r = if r < 0 then Error r else Ok r
-let[@inline] ret_bool r =
-  if r < 0 then Error r else if r = 0 then Ok false else Ok true
 
 let get_stream_info s = check s; _get_stream_info s.ptr
 let start_stream s = check s; ret (_start_stream s.ptr)
 let stop_stream s = check s; ret (_stop_stream s.ptr)
 let abort_stream s = check s; ret (_abort_stream s.ptr)
-let close_stream s = check s; ret (_close_stream s.ptr)
+let close_stream s = check s; s.closed <- true; ret (_close_stream s.ptr)
 
 let is_stream_active s = check s; ret_bool (_is_stream_active s.ptr)
 let is_stream_stopped s = check s; ret_bool (_is_stream_stopped s.ptr)
