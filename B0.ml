@@ -26,7 +26,9 @@ let mu_tportaudio_lib =
                     `File (v "src/tportaudio.ml") ]
   in
   let requires = [] in
-  B0_ocaml.lib mu_tportaudio ~doc:"portaudio binding library" ~srcs ~requires
+  let c_requires = Cmd.(atom "-lportaudio") in
+  B0_ocaml.lib mu_tportaudio ~doc:"portaudio binding library" ~srcs
+    ~requires ~c_requires
 
 let mu_tportmidi_lib =
   let stubs = `File (Fpath.v "src/tportmidi_stubs.c") in
@@ -34,7 +36,9 @@ let mu_tportmidi_lib =
                     `File (v "src/tportmidi.ml") ]
   in
   let requires = [] in
-  B0_ocaml.lib mu_tportmidi ~doc:"portmidi binding library" ~srcs ~requires
+  let c_requires = Cmd.(atom "-lportmidi") in
+  B0_ocaml.lib mu_tportmidi ~doc:"portmidi binding library" ~srcs
+    ~requires ~c_requires
 
 let mu_player_lib =
   let srcs = Fpath.[ `File (v "src/mu_player.mli");
@@ -107,6 +111,7 @@ let default =
         "b0", {|>= "0.0.3"|};
         "ocamlfind", {|build|};
         "ocamlbuild", {|build|};
+        "topkg", {|build & >= "1.0.3"|};
         "conf-portaudio", {|build|};
         "conf-portmidi", {|build|};
       ]
