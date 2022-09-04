@@ -8,7 +8,7 @@
     Needs [timidity] or [vlc] in your [PATH]. *)
 
 open Mu
-open B00_std
+open B0_std
 
 val play : Pnote.t Music.t -> unit
 (** [play m] plays music [m] by shelling out to [timidity] or [vlc]. *)

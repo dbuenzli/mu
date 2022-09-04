@@ -1,10 +1,9 @@
 open B0_kit.V000
-open B00_std
 open Result.Syntax
 
 (* OCaml library names *)
 
-let b0_b00_std = B0_ocaml.libname "b0.b00.std"
+let b0_std = B0_ocaml.libname "b0.std"
 let mu = B0_ocaml.libname "mu"
 let mu_player = B0_ocaml.libname "mu.player"
 let mu_tportaudio = B0_ocaml.libname "mu.tportaudio"
@@ -26,7 +25,7 @@ let mu_tportaudio_lib =
                     `File (v "src/tportaudio.ml") ]
   in
   let requires = [] in
-  let c_requires = Cmd.(atom "-lportaudio") in
+  let c_requires = Cmd.(arg "-lportaudio") in
   B0_ocaml.lib mu_tportaudio ~doc:"portaudio binding library" ~srcs
     ~requires ~c_requires
 
@@ -36,7 +35,7 @@ let mu_tportmidi_lib =
                     `File (v "src/tportmidi.ml") ]
   in
   let requires = [] in
-  let c_requires = Cmd.(atom "-lportmidi") in
+  let c_requires = Cmd.(arg "-lportmidi") in
   B0_ocaml.lib mu_tportmidi ~doc:"portmidi binding library" ~srcs
     ~requires ~c_requires
 
@@ -44,19 +43,18 @@ let mu_player_lib =
   let srcs = Fpath.[ `File (v "src/mu_player.mli");
                      `File (v "src/mu_player.ml") ]
   in
-  let requires = [b0_b00_std; mu] in
+  let requires = [b0_std; mu] in
   B0_ocaml.lib mu_player ~doc:"The mu player library" ~srcs ~requires
 
 (* Tests *)
 
 let test_src f = `File Fpath.(v "test" // f)
 
-
 let test_exe ?(requires = []) file ~doc =
   let file = Fpath.v file in
   let srcs = [test_src file] in
-  let requires = b0_b00_std :: mu :: mu_player :: requires in
-  B0_ocaml.exe (Fpath.basename ~no_ext:true file) ~doc ~srcs ~requires
+  let requires = b0_std :: mu :: mu_player :: requires in
+  B0_ocaml.exe (Fpath.basename ~strip_ext:true file) ~doc ~srcs ~requires
 
 let test_q = test_exe "test_q.ml" ~doc:"Mu.Q tests"
 let test = test_exe "test.ml" ~doc:"Mu tests"
@@ -86,27 +84,27 @@ let shepard = test_exe "shepard.ml" ~doc:"Shepard tone"
 let loudness = test_exe "loudness.ml" ~doc:"Loudness"
 let articulation = test_exe "articulation.ml" ~doc:"Articulation"
 
-
 (* Packs *)
 
 let default =
   let meta =
-    let open B0_meta in
-    empty
-    |> add authors ["The mu programmers"]
-    |> add maintainers ["Daniel Bünzli <daniel.buenzl i@erratique.ch>"]
-    |> add homepage "https://erratique.ch/software/mu"
-    |> add online_doc "https://erratique.ch/software/mu/doc"
-    |> add licenses ["ISC"]
-    |> add repo "git+https://erratique.ch/repos/mu.git"
-    |> add issues "https://github.com/dbuenzli/mu/issues"
-    |> add description_tags ["codec"; "midi"; "music"; "org:erratique"; ]
-    |> add B0_opam.Meta.build
+    B0_meta.empty
+    |> B0_meta.(add authors) ["The mu programmers"]
+    |> B0_meta.(add maintainers)
+       ["Daniel Bünzli <daniel.buenzl i@erratique.ch>"]
+    |> B0_meta.(add homepage) "https://erratique.ch/software/mu"
+    |> B0_meta.(add online_doc) "https://erratique.ch/software/mu/doc"
+    |> B0_meta.(add licenses) ["ISC"]
+    |> B0_meta.(add repo) "git+https://erratique.ch/repos/mu.git"
+    |> B0_meta.(add issues) "https://github.com/dbuenzli/mu/issues"
+    |> B0_meta.(add description_tags)
+      ["codec"; "midi"; "music"; "org:erratique"; ]
+    |> B0_meta.tag B0_opam.tag
+    |> B0_meta.add B0_opam.build
       {|[["ocaml" "pkg/pkg.ml" "build" "--dev-pkg" "%{dev}%"
           "--with-conf-portaudio" "%{conf-portaudio:installed}%"
           "--with-conf-portmidi" "%{conf-portmidi:installed}%"]]|}
-    |> tag B0_opam.tag
-    |> add B0_opam.Meta.depends
+    |> B0_meta.add B0_opam.depends
       [ "ocaml", {|>= "4.12.0"|};
         "b0", {|>= "0.0.3"|};
         "ocamlfind", {|build|};
@@ -116,5 +114,5 @@ let default =
         "conf-portmidi", {|build|};
       ]
   in
-  B0_pack.v "default" ~doc:"mu package" ~meta ~locked:true @@
+  B0_pack.make "default" ~doc:"mu package" ~meta ~locked:true @@
   B0_unit.list ()

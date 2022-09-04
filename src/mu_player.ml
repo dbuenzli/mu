@@ -3,7 +3,7 @@
    Distributed under the ISC license, see terms at the end of the file.
   ---------------------------------------------------------------------------*)
 
-open B00_std
+open B0_std
 open Result.Syntax
 open Mu
 
@@ -11,16 +11,13 @@ let midi_file m =
   let p = Performance.of_music m in
   Mu_midi.File.(to_string (of_performance p))
 
-let find_player () =
-  let* timidity = Os.Cmd.find Cmd.(atom "timidity") in
-  match timidity with
-  | Some cmd -> Ok cmd
-  | None ->
-      let* vlc = Os.Cmd.find Cmd.(atom "vlc" % "-I" % "dummy") in
-      match vlc with
-      | Some cmd -> Ok cmd
-      | None ->
-          Error "Couldn't find a MIDI player.\nTry to install timidity or VLC"
+let find_player () = match Os.Cmd.find (Cmd.tool "timidity") with
+| Some cmd -> Ok cmd
+| None ->
+    match Os.Cmd.find Cmd.(tool "vlc" % "-I" % "dummy") with
+    | Some cmd -> Ok cmd
+    | None ->
+        Error "Couldn't find a MIDI player.\nTry to install timidity or VLC"
 
 let with_midi_file m f =
   Result.join @@ Os.File.with_tmp_oc ~name:"mu-%s.mid" @@ fun file oc ->
